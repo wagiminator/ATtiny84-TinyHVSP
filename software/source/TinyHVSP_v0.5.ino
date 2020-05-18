@@ -8,7 +8,8 @@
 //
 // Clockspeed 8 MHz internal.
 //
-// 2019 by Stefan Wagner
+// 2019 by Stefan Wagner (https://easyeda.com/wagiminator)
+// License: http://creativecommons.org/licenses/by-sa/3.0/
 //
 // based on the work of Jeff Keyzer (http://mightyohm.com)
 // and Paul Willoughby (http://www.rickety.us/2010/03/arduino-avr-high-voltage-serial-programmer/)
