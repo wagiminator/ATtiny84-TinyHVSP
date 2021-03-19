@@ -412,9 +412,8 @@ void printFuses() {
 
 // Wait until OK-Button was pressed
 void waitButton() {
-  _delay_us(50);                          // debounce
   while (~PINB & (1<<BUTTON));            // wait for button released
-  _delay_us(50);                          // debounce
+  _delay_ms(10);                          // debounce
   while ( PINB & (1<<BUTTON));            // wait for button pressed
 }
 
