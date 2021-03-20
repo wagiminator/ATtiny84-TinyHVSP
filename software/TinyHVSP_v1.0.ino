@@ -463,7 +463,7 @@ int main(void) {
     while (!chipDetected) {               // repeat until a valid chip was detected
       waitButton();                       // wait for OK-Button pressed
 
-      chipDetected = true;                // assume positive detection by now
+      chipDetected = 1;                   // assume positive detection by now
       HVSP_enterProgMode();               // start programming mode
       HVSP_readSignature();               // read device signature
 
@@ -483,7 +483,7 @@ int main(void) {
                       outLFUSE=Tx5_LFUSE; outHFUSE=Tx5_HFUSE; break;
         default:      OLED_printPrg(ErrorStr); OLED_setCursor(0,1);
                       OLED_printPrg(ErrorScreen); HVSP_exitProgMode();
-                      chipDetected = false; break;
+                      chipDetected = 0; break;
       }
     }
 
