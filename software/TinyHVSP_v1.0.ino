@@ -443,9 +443,6 @@ const char DefaultStr[] PROGMEM =   "<OK> to burn defaults";
 const char BurnedStr[] PROGMEM =    "Fuses burned         ";
 const char QuitStr[] PROGMEM =      "Press <OK> to quit.  ";
 
-// Local variables
-uint8_t chipDetected;
-
 int main(void) {
   // Setup
   DDRA  |= (1<<RST_PIN);                  // RST pin as ouput
@@ -462,7 +459,7 @@ int main(void) {
     OLED_printPrg(TitleScreen);
     
     // Start detection of device and repeat until positive detection
-    chipDetected = 0;                     // assume negative detection by now
+    uint8_t chipDetected = 0;             // assume negative detection by now
     while (!chipDetected) {               // repeat until a valid chip was detected
       waitButton();                       // wait for OK-Button pressed
 
