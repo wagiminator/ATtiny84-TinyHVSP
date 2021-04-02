@@ -4,12 +4,24 @@
 // using an ATtiny84 for bit-banging the protocol according to the
 // respective datasheets.
 //
+//                              +-\/-+
+//                        Vcc  1|°   |14  GND
+//              --- (D10) PB0  2|    |13  PA0 (D0) --- TGT !RST 12V 
+//              --- (D9)  PB1  3|    |12  PA1 (D1) --- TGT SCI
+// RESET ---------- (D11) PB3  4|    |11  PA2 (D2) --- TGT SDO
+// OK Button ------ (D8)  PB2  5|    |10  PA3 (D3) --- TGT Vcc
+// TGT SDI -------- (D7)  PA7  6|    |9   PB4 (D4) --- I2C SCK OLED
+// I2C SDA OLED --- (D6)  PA6  7|    |8   PB5 (D5) --- TGT SII
+//                              +----+
+//
 // Core:          ATtinyCore (https://github.com/SpenceKonde/ATTinyCore)
 // Board:         ATtiny24/44/84(a) (No bootloader)
 // Chip:          ATtiny24(a) or 44(a) or 84(a) (depending on your chip)
 // Clock:         8 MHz (internal)
 // Millis/Micros: disabled
-// Leave the rest on default settings. Don't forget to "Burn bootloader" !
+// Leave the rest on default settings. Don't forget to "Burn bootloader"!
+// No Arduino core functions or libraries are used. Use the makefile if 
+// you want to compile without Arduino IDE.
 //
 // based on the work of Jeff Keyzer
 // http://mightyohm.com

@@ -2,7 +2,7 @@
 Stand-alone high-voltage serial programmer and fuse resetter for ATtiny 13/25/45/85. This project was superseded by the more versatile [TinyCalibrator](https://github.com/wagiminator/ATtiny84-TinyCalibrator).
 
 - Project Video (YouTube): https://youtu.be/2Q7D2RwkOMg
-- Project Files (EasyEDA): https://easyeda.com/wagiminator/z-attiny84-tinyhvprogrammer
+- Design Files (EasyEDA): https://easyeda.com/wagiminator/z-attiny84-tinyhvprogrammer
 
 ![TinyHVSP_pic1.jpg](https://raw.githubusercontent.com/wagiminator/ATtiny84-TinyHVSP/master/documentation/TinyHVSP_pic1.jpg)
 
