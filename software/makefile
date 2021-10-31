@@ -1,13 +1,12 @@
 # Project:  tinyHVSP
 # Author:   Stefan Wagner
 # Year:     2019
-# URL:      https://easyeda.com/wagiminator
-#           https://github.com/wagiminator
-#
+# URL:      https://github.com/wagiminator
+#           
 # Type "make help" in the command line.
 
 # Input and Output File Names
-SKETCH  = TinyHVSP_v1.0.ino
+SKETCH  = TinyHVSP.ino
 TARGET  = tinyhvsp
 
 # Microcontroller Options
@@ -15,7 +14,7 @@ DEVICE  = attiny84
 CLOCK   = 8000000
 PROGRMR = usbasp
 LFUSE   = 0xe2
-HFUSE   = 0xd7
+HFUSE   = 0xd5
 EFUSE   = 0xff
 
 # Commands

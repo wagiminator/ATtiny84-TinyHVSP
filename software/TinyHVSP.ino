@@ -1,28 +1,21 @@
-// tinyHVSP
+// ===================================================================================
+// Project:   TinyHVSP - AVR High-Voltage Serial Programmer based on ATtiny84
+// Version:   v1.0
+// Year:      2019
+// Author:    Stefan Wagner
+// Github:    https://github.com/wagiminator
+// EasyEDA:   https://easyeda.com/wagiminator
+// License:   http://creativecommons.org/licenses/by-sa/3.0/
+// ===================================================================================
 //
+// Description:
+// ------------
 // Stand-alone AVR High-Voltage Serial Programmer for ATtiny13/25/45/85
 // using an ATtiny84 for bit-banging the protocol according to the
 // respective datasheets.
 //
-//                              +-\/-+
-//                        Vcc  1|°   |14  GND
-//              --- (D10) PB0  2|    |13  PA0 (D0) --- TGT !RST 12V 
-//              --- (D9)  PB1  3|    |12  PA1 (D1) --- TGT SCI
-// RESET ---------- (D11) PB3  4|    |11  PA2 (D2) --- TGT SDO
-// OK Button ------ (D8)  PB2  5|    |10  PA3 (D3) --- TGT Vcc
-// TGT SDI -------- (D7)  PA7  6|    |9   PA4 (D4) --- I2C SCK OLED
-// I2C SDA OLED --- (D6)  PA6  7|    |8   PA5 (D5) --- TGT SII
-//                              +----+
-//
-// Core:          ATtinyCore (https://github.com/SpenceKonde/ATTinyCore)
-// Board:         ATtiny24/44/84(a) (No bootloader)
-// Chip:          ATtiny24(a) or 44(a) or 84(a) (depending on your chip)
-// Clock:         8 MHz (internal)
-// Millis/Micros: disabled
-// Leave the rest on default settings. Don't forget to "Burn bootloader"!
-// No Arduino core functions or libraries are used. Use the makefile if 
-// you want to compile without Arduino IDE.
-//
+// References:
+// -----------
 // based on the work of Jeff Keyzer
 // http://mightyohm.com
 // and Paul Willoughby
@@ -34,18 +27,44 @@
 // OLED font was adapted from Neven Boyanov and Stephen Denne
 // https://github.com/datacute/Tiny4kOLED
 //
-// 2019 by Stefan Wagner 
-// Project Files (EasyEDA): https://easyeda.com/wagiminator
-// Project Files (Github):  https://github.com/wagiminator
-// License: http://creativecommons.org/licenses/by-sa/3.0/
+// Wiring:
+// -------
+//                                  +-\/-+
+//                            Vcc  1|°   |14  GND
+//              -------- XTAL PB0  2|    |13  PA0 ADC0 AREF --- TGT !RST 12V
+//              -------- XTAL PB1  3|    |12  PA1 ADC1 AIN0 --- TGT SCI
+//        RESET -------- !RST PB3  4|    |11  PA2 ADC2 AIN1 --- TGT SDO
+//    OK Button -------- INT0 PB2  5|    |10  PA3 ADC3 T0 ----- TGT Vcc
+//      TGT SDI -------- ADC7 PA7  6|    |9   PA4 ADC4 SCK ---- I2C SCK OLED
+// I2C SDA OLED --- MOSI ADC6 PA6  7|    |8   PA5 ADC5 MISO --- TGT SII
+//                                  +----+
+//
+// Compilation Settings:
+// ---------------------
 
+// Core:    ATtinyCore (https://github.com/SpenceKonde/ATTinyCore)
+// Board:   ATtiny24/44/84(a) (No bootloader)
+// Chip:    ATtiny24(a) or 44(a) or 84(a) (depending on your chip)
+// Clock:   8 MHz (internal)
+// Millis:  disabled
+//
+// Leave the rest on default settings. Don't forget to "Burn bootloader"!
+// No Arduino core functions or libraries are used. Use the makefile if 
+// you want to compile without Arduino IDE.
+//
+// Fuse settings: -U lfuse:w:0xe2:m -U hfuse:w:0xd5:m -U efuse:w:0xff:m
+
+
+// ===================================================================================
+// Libraries and Definitions
+// ===================================================================================
 
 // Libraries
-#include <avr/io.h>
-#include <avr/pgmspace.h>
-#include <util/delay.h>
+#include <avr/io.h>       // for GPIO
+#include <avr/pgmspace.h> // to store data in programm memory
+#include <util/delay.h>   // for delays
 
-// Pin assignments
+// Pin definitions
 #define RST_PIN   PA0     // 12V !RESET                       Pin 1 of target device
 #define SCI_PIN   PA1     // Serial Clock Input (SCI)         Pin 2 of target device
 #define SDO_PIN   PA2     // Serial Data Output (SDO)         Pin 7 of target device
@@ -62,9 +81,9 @@ uint8_t  outLFUSE, outHFUSE, outEFUSE;        // for writing fuses
 uint8_t  inLOCK;                              // for reading lock bits
 uint16_t signature;                           // for reading signature
 
-// -----------------------------------------------------------------------------
+// ===================================================================================
 // I2C Implementation
-// -----------------------------------------------------------------------------
+// ===================================================================================
 
 // I2C macros
 #define I2C_SDA_HIGH()  DDRA &= ~(1<<I2C_SDA) // release SDA   -> pulled HIGH by resistor
@@ -105,9 +124,9 @@ void I2C_stop(void) {
   I2C_SDA_HIGH();                         // stop condition: SDA goes HIGH second
 }
 
-// -----------------------------------------------------------------------------
+// ===================================================================================
 // OLED Implementation
-// -----------------------------------------------------------------------------
+// ===================================================================================
 
 // OLED definitions
 #define OLED_ADDR       0x78              // OLED write address
@@ -168,7 +187,7 @@ void OLED_init(void) {
   I2C_init();                             // initialize I2C first
   I2C_start(OLED_ADDR);                   // start transmission to OLED
   I2C_write(OLED_CMD_MODE);               // set command mode
-  for (uint8_t i = 0; i < OLED_INIT_LEN; i++)
+  for(uint8_t i = 0; i < OLED_INIT_LEN; i++)
     I2C_write(pgm_read_byte(&OLED_INIT_CMD[i])); // send the command bytes
   I2C_stop();                             // stop transmission
 }
@@ -204,9 +223,9 @@ void OLED_printChar(char c) {
   uint16_t ptr = c - 32;                  // character pointer
   ptr += ptr << 2;                        // -> ptr = (ch - 32) * 5;
   I2C_write(0x00);                        // write space between characters
-  for (uint8_t i=5 ; i; i--) I2C_write(pgm_read_byte(&OLED_FONT[ptr++]));
+  for(uint8_t i=5 ; i; i--) I2C_write(pgm_read_byte(&OLED_FONT[ptr++]));
   OLED_x += 6;                            // update cursor
-  if (OLED_x > 122) {                     // line end ?
+  if(OLED_x > 122) {                      // line end ?
     I2C_stop();                           // stop data transmission
     OLED_setCursor(0,++OLED_y);           // set next line start
     I2C_start(OLED_ADDR);                 // start transmission to OLED
@@ -219,7 +238,7 @@ void OLED_printPrg(const char* p) {
   I2C_start(OLED_ADDR);                   // start transmission to OLED
   I2C_write(OLED_DAT_MODE);               // set data mode
   char ch = pgm_read_byte(p);             // read first character from program memory
-  while (ch) {                            // repeat until string terminator
+  while(ch) {                             // repeat until string terminator
     OLED_printChar(ch);                   // print character on OLED
     ch = pgm_read_byte(++p);              // read next character
   }
@@ -229,8 +248,8 @@ void OLED_printPrg(const char* p) {
 // OLED convert byte nibble into hex character and prints it
 void OLED_printNibble(uint8_t nibble) {
   char c;
-  if (nibble <= 9)  c = '0' + nibble;
-  else              c = 'A' + nibble - 10;
+  if(nibble <= 9)  c = '0' + nibble;
+  else             c = 'A' + nibble - 10;
   OLED_printChar(c);
 }
 
@@ -243,9 +262,9 @@ void OLED_printHex(uint8_t value) {
   I2C_stop();                             // stop transmission
 }
 
-// -----------------------------------------------------------------------------
+// ===================================================================================
 // High-Voltage Serial Programmer Implementation
-// -----------------------------------------------------------------------------
+// ===================================================================================
 
 // Desired fuse configuration (defaults) for ATtiny13
 #define T13_LFUSE         0x6A
@@ -392,7 +411,7 @@ void HVSP_writeFuses(void) {
   HVSP_sendInstr(0x00,  0x66);            // Instr3: select extended fuse
   HVSP_sendInstr(0x00,  0x6E);            // Instr4: select extended fuse
 
-  while (!HVSP_SDO_BIT);                  // wait for write cycle to finish
+  while(!HVSP_SDO_BIT);                   // wait for write cycle to finish
 }
 
 // HVSP perform chip erase
@@ -400,13 +419,13 @@ void HVSP_eraseChip(void) {
   HVSP_sendInstr(0x80, 0x4C);             // Instr1: chip erase command
   HVSP_sendInstr(0x00, 0x64);             // Instr2
   HVSP_sendInstr(0x00, 0x6C);             // Instr3
-  while (!HVSP_SDO_BIT);                  // wait for the chip erase cycle to finish
+  while(!HVSP_SDO_BIT);                   // wait for the chip erase cycle to finish
   HVSP_sendInstr(0x00, 0x4C);             // no operation command to finish chip erase
 }
 
-// -----------------------------------------------------------------------------
+// ===================================================================================
 // Additional Functions
-// -----------------------------------------------------------------------------
+// ===================================================================================
 
 // Text strings stored in program memory
 const char CurrentFuseStr[] PROGMEM = "Current fuse settings";
@@ -424,14 +443,14 @@ void printFuses() {
 
 // Wait until OK-Button was pressed
 void waitButton() {
-  while (~PINB & (1<<BUTTON));            // wait for button released
+  while(~PINB & (1<<BUTTON));             // wait for button released
   _delay_ms(10);                          // debounce
-  while ( PINB & (1<<BUTTON));            // wait for button pressed
+  while( PINB & (1<<BUTTON));             // wait for button pressed
 }
 
-// -----------------------------------------------------------------------------
+// ===================================================================================
 // Main Function
-// -----------------------------------------------------------------------------
+// ===================================================================================
 
 // Text strings stored in program memory
 const char TitleScreen[] PROGMEM =
@@ -472,7 +491,7 @@ int main(void) {
     
     // Start detection of device and repeat until positive detection
     uint8_t chipDetected = 0;             // assume negative detection by now
-    while (!chipDetected) {               // repeat until a valid chip was detected
+    while(!chipDetected) {                // repeat until a valid chip was detected
       waitButton();                       // wait for OK-Button pressed
 
       chipDetected = 1;                   // assume positive detection by now
@@ -484,7 +503,7 @@ int main(void) {
       OLED_printPrg(DetectedStr);
 
       // Make settings depending on detected device
-      switch (signature) {
+      switch(signature) {
         case T13_SIG: OLED_printPrg(ATtinyStr); OLED_printHex(0x13);
                       outLFUSE=T13_LFUSE; outHFUSE=T13_HFUSE; break;
         case T25_SIG: OLED_printPrg(ATtinyStr); OLED_printHex(0x25);
